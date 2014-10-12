@@ -311,7 +311,8 @@
     $ideaId=$args;
     $APIKey=0;
     $type="site";
-    $catQuery='';
+    $catQuery1='';
+    $catQuery2='';
     $catId=0;
     if (is_array($args)){
       $ideaId=-1;
@@ -342,7 +343,8 @@
       }
       if($catId){
         error_log($catId);
-        $catQuery = " and catId='".$catId."' ";
+        $catQuery1 = " and catId='".$catId."' ";
+        $catQuery2 = " and c.catId='".$catId."' ";
       }
     }
     if($APIKey){
@@ -356,14 +358,17 @@
           title,
           description,
           submittedDate,
-          username
+          username,
+          categoryName
         FROM
           Idea i,
-          User u
+          User u,
+          Category c
         WHERE
           i.ideaId=:ideaId and
           i.valid=1 and
-          i.submitterId=u.userId
+          i.submitterId=u.userId and
+          i.catId = c.catId
         ;");
         $stmt->bindValue(':ideaId', $ideaId);
         $stmt->execute();
@@ -383,15 +388,18 @@
           title,
           description,
           submittedDate,
-          username
+          username,
+          categoryName
         FROM
           Idea i,
-          User u
+          User u,
+          Category c
         WHERE
-          i.{$type}Frequency=(SELECT MIN({$type}Frequency) FROM Idea WHERE valid=1 {$catQuery}) and
+          i.{$type}Frequency=(SELECT MIN({$type}Frequency) FROM Idea WHERE valid=1 {$catQuery1}) and
           i.valid=1 and
-          i.submitterId=u.userId
-          {$catQuery}
+          i.submitterId=u.userId and
+          i.catId = c.catId
+          {$catQuery2}
         ORDER BY
           RAND()
         LIMIT
