@@ -67,15 +67,33 @@
         submittedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         hatFrequency int DEFAULT 0,
         siteFrequency int DEFAULT 0,
+        catId int REFERENCES Category,
         valid BIT(1) DEFAULT 0,
+        solverId int REFERENCES User,
+        githubSolution VARCHAR(128),
         INDEX(ideaId),
 
         PRIMARY KEY(ideaId, submitterId)
       )
     ;');
 
-    makeAdmin($db, array('username'=>ADMIN, 'password'=>PASSWORD), 1);
+    executeSQL($db,
+      'CREATE TABLE Category(
+        catId int NOT NULL AUTO_INCREMENT,
+        categoryName VARCHAR(64) UNIQUE,
+        INDEX(catId),
 
+        PRIMARY KEY(catId, categoryName)
+      )
+    ;');
+
+    makeAdmin($db, array('username'=>ADMIN, 'password'=>PASSWORD), 1);
+    addCategory($db, "hardware");
+    addCategory($db, "web development");
+    addCategory($db, "mobile");
+    addCategory($db, "design");
+    addCategory($db, "desktop");
+    addCategory($db, "machine learning");
   }
 
   function executeSQL($db, $query){//runs a query with PDO's specific syntax
@@ -85,6 +103,41 @@
       error_log('Query failed: ' . $e->getMessage());
       exit;
     }
+  }
+
+  function addCategory($db, $categoryName){
+    executeSQL($db,
+      "INSERT INTO
+        Category(
+          categoryName
+        )
+      VALUES(
+        '$categoryName'
+      )
+    ;");
+  }
+
+
+  function listCategories($db, $args=0){
+    $results = array("errors"=>array());
+    try {
+      $stmt = $db->prepare(
+        'SELECT
+          *
+        FROM
+          Category
+      ;');
+      $stmt->execute();
+      $results['categories']=array();
+      while ($row = $stmt->fetch(PDO::FETCH_OBJ)){//creates an array of the results to return
+        array_push($results['categories'], $row);
+      }
+      $results['status'] = "success";
+    } catch (PDOException $e) {//something went wrong...
+      error_log("Error: " . $e->getMessage());
+      array_push($results['errors'], "database error");
+    }
+    return $results;
   }
 
   function getUserId($db, $username){//checks for row in user table corresponding to username provided
@@ -205,9 +258,13 @@
         }
       }
       if($valid){
+        $catId=-1;
         $username="anonymous";
         if (array_key_exists("username", $args)&&$args['username']){
           $username= sanitizeString($args['username']);
+        }
+        if (array_key_exists("catId", $args)&&$args['catId']){
+          $catId= sanitizeString($args['catId']);
         }
         $userId=getUserId($db, $username);
         error_log($userId);
@@ -219,17 +276,20 @@
               Idea(
                 title,
                 description,
-                submitterId
+                submitterId,
+                catId
               )
             VALUES(
               :title,
               :description,
-              :userId
+              :userId,
+              :catId
             )
           ;');
           $stmt->bindValue(':title', $title);
           $stmt->bindValue(':description', $description);
           $stmt->bindValue(':userId', $userId);
+          $stmt->bindValue(':catId', $catId);
           $stmt->execute();
 
           $results['status'] = 'success';
@@ -251,6 +311,7 @@
     $ideaId=$args;
     $APIKey=0;
     $type="site";
+    $catQuery='';
     if (is_array($args)){
       $ideaId=-1;
       if(array_key_exists("ideaId", $args)){
@@ -259,6 +320,9 @@
       if(array_key_exists("APIKey", $args)){
         $APIKey = sanitizeString($args['APIKey'])==API_ARDUINO_KEY;
       }
+      if(array_key_exists("catId", $args) && $args['catId']){
+        $catQuery = " and catId='".sanitizeString($args['catId'])."' ";
+      }
     }
     if($APIKey){
       $type = "hat";
@@ -266,7 +330,7 @@
     try{
       if($ideaId>=0){
         $stmt = $db->prepare(
-        'SELECT
+        "SELECT
           ideaId,
           title,
           description,
@@ -277,8 +341,9 @@
           User u
         WHERE
           i.ideaId=:ideaId and
+          i.valid=1 and
           i.submitterId=u.userId
-        ;');
+        ;");
         $stmt->bindValue(':ideaId', $ideaId);
         $stmt->execute();
 
@@ -302,8 +367,10 @@
           Idea i,
           User u
         WHERE
-          i.{$type}Frequency=(SELECT MIN({$type}Frequency) FROM Idea) and
+          i.{$type}Frequency=(SELECT MIN({$type}Frequency) FROM Idea WHERE valid=1 {$catQuery}) and
+          i.valid=1 and
           i.submitterId=u.userId
+          {$catQuery}
         ORDER BY
           RAND()
         LIMIT
@@ -313,7 +380,7 @@
 
         if ($stmt->rowCount()>0){
           $idea = $stmt->fetch(PDO::FETCH_OBJ);
-          $asdf = $db->prepare(
+          $stmt = $db->prepare(
           "UPDATE
             Idea
           SET
@@ -321,9 +388,9 @@
           WHERE
             ideaId=:ideaId
           ;");
-          $asdf->bindValue(':ideaId', $idea->ideaId);
+          $stmt->bindValue(':ideaId', $idea->ideaId);
 
-          $asdf->execute();
+          $stmt->execute();
           $results['idea']=$idea;
           $results['status']="success";
         }else{
@@ -334,6 +401,135 @@
     }catch (PDOException $e) {//something went wrong...
       error_log("Error: " . $e->getMessage());
       array_push($results['errors'], "database error");
+    }
+    return $results;
+  }
+
+  function listInvalid($db, $args=0){
+    $results = array("errors"=>array());
+    if(isset($_SESSION['admin']) && $_SESSION['admin']){
+      try {
+        $stmt = $db->prepare(
+          'SELECT
+            i.ideaId,
+            i.title,
+            i.description,
+            u.username
+          FROM
+            User u,
+            Idea i
+          WHERE
+            u.userId=i.submitterId and
+            i.valid=0
+        ;');//makes new row with given info
+        $stmt->execute();
+        $results['ideas']=array();
+        while ($row = $stmt->fetch(PDO::FETCH_OBJ)){//creates an array of the results to return
+          array_push($results['ideas'], $row);
+        }
+        $results['status'] = "success";
+      } catch (PDOException $e) {//something went wrong...
+        error_log("Error: " . $e->getMessage());
+        array_push($results['errors'], "database error");
+      }
+    }else{
+      array_push($results['errors'], "you do not have permissions to do this");
+    }
+    return $results;
+  }
+
+  function listValid($db, $args=0){
+    $results = array("errors"=>array());
+    if(isset($_SESSION['admin']) && $_SESSION['admin']){
+      try {
+        $stmt = $db->prepare(
+          'SELECT
+            i.ideaId,
+            i.title,
+            i.description,
+            i.hatFrequency,
+            i.siteFrequency,
+            u.username
+          FROM
+            User u,
+            Idea i
+          WHERE
+            u.userId=i.submitterId and
+            i.valid=1
+        ;');
+        $stmt->execute();
+        $results['ideas']=array();
+        while ($row = $stmt->fetch(PDO::FETCH_OBJ)){//creates an array of the results to return
+          array_push($results['ideas'], $row);
+        }
+        $results['status'] = "success";
+      } catch (PDOException $e) {//something went wrong...
+        error_log("Error: " . $e->getMessage());
+        array_push($results['errors'], "database error");
+      }
+    }else{
+      array_push($results['errors'], "you do not have permissions to do this");
+    }
+    return $results;
+  }
+
+  function validate($db, $args){
+    $results = array("errors"=>array());
+    if(isset($_SESSION['admin']) && $_SESSION['admin']){
+      if(array_key_exists("ideaIds", $args)){
+        try {
+          $inQuery = implode(',', array_fill(0, count($args['ideaIds']), '?'));
+          $stmt = $db->prepare(
+            "UPDATE
+              Idea
+            SET
+              valid=1
+            WHERE
+              ideaId IN({$inQuery})
+          ;");
+          foreach ($args['ideaIds'] as $k => $id)$stmt->bindValue(($k+1), $id);
+          $stmt->execute();
+          $results['status'] = "success";
+        } catch (PDOException $e) {//something went wrong...
+          error_log("Error: " . $e->getMessage());
+          array_push($results['errors'], "database error");
+        }
+      }else{
+        array_push($results['errors'], "needs ideaIds");
+      }
+    }else{
+      array_push($results['errors'], "you do not have permissions to do this");
+    }
+    return $results;
+  }
+
+  function inValidate($db, $args){
+    $results = array("errors"=>array());
+    if(isset($_SESSION['admin']) && $_SESSION['admin']){
+      if(array_key_exists("ideaIds", $args)){
+        try {
+          $inQuery = implode(',', array_fill(0, count($args['ideaIds']), '?'));
+          error_log(json_encode($args['ideaIds']));
+          $stmt = $db->prepare(
+            "UPDATE
+              Idea
+            SET
+              valid=0
+            WHERE
+              ideaId IN({$inQuery})
+          ;");
+          foreach ($args['ideaIds'] as $k => $id)$stmt->bindValue(($k+1), $id);
+          $stmt->execute();
+          $results['status'] = "success";
+        } catch (PDOException $e) {//something went wrong...
+          error_log("Error: " . $e->getMessage());
+          array_push($results['errors'], "database error");
+        }
+      }else{
+        array_push($results['errors'], "needs ideaIds");
+      }
+    }else{
+      array_push($results['errors'], "you do not have permissions to do this");
     }
     return $results;
   }
