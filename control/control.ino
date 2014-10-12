@@ -75,4 +75,9 @@ void loop() {
     }
     
   }
+  
+  if (BlueTooth.available()) {
+    Serial.write( BlueTooth.read() );
+  }
+  
 }
