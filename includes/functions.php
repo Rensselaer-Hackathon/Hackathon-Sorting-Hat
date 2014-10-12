@@ -74,6 +74,8 @@
       )
     ;');
 
+    makeAdmin($db, array('username'=>ADMIN, 'password'=>PASSWORD), 1);
+
   }
 
   function executeSQL($db, $query){//runs a query with PDO's specific syntax
@@ -116,17 +118,14 @@
       return $result->userId;
     }
   }
-/*
 
-  function makeAdmin($db, $args){//creates account with an array of user information given
+  function makeAdmin($db, $args, $force=0){//creates account with an array of user information given
     $results = array("errors"=>array());
-    if(is_array($args)&&array_key_exists("username", $args)&&array_key_exists("password", $args)){//valid array was given
-      $username = sanitizeString($args['username']);
-      $password = hash('sha512',PRE_SALT.sanitizeString($args['password']).POST_SALT);
-      $userId = getUserId($db, $username);
-      if(!$userId){//user already exists
-        array_push($results['errors'], "user doesn't exist");
-      } else {
+    if($force || (isset($_SESSION['admin']) && $_SESSION['admin'])){
+      if(is_array($args)&&array_key_exists("username", $args)&&array_key_exists("password", $args)){//valid array was given
+        $username = sanitizeString($args['username']);
+        $password = hash('sha512',PRE_SALT.sanitizeString($args['password']).POST_SALT);
+        $userId = getUserId($db, $username);
         try {
           $stmt = $db->prepare(
             'UPDATE
@@ -135,8 +134,7 @@
               password=:password,
               admin=1
             WHERE
-              userId=:userId,
-            )
+              userId=:userId
           ;');//makes new row with given info
           $stmt->bindValue(':password', $password);
           $stmt->bindValue(':userId', $userId);
@@ -146,9 +144,11 @@
           error_log("Error: " . $e->getMessage());
           array_push($results['errors'], "database error");
         }
+      }else{
+        array_push($results['errors'], "missing username or password");
       }
     }else{
-      array_push($results['errors'], "missing username or password");
+      array_push($results['errors'], "you do not have permissions to do this");
     }
     return $results;
   }
@@ -179,6 +179,7 @@
           $_SESSION['username'] = $result->username;
           $_SESSION['userId'] = $result->userId;
           $_SESSION['logged'] = 1;
+          $_SESSION['admin'] = $result->admin;
         }else{
           array_push($results['errors'], "bad username/password combination");
         }
@@ -192,7 +193,6 @@
     }
     return $results;
   }
-*/
   function submitIdea($db, $args){
     $results = array("errors"=>array());
     $required_keys = array("title", "description");

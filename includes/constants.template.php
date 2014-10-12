@@ -12,4 +12,6 @@
   define('PRE_SALT', "");//for security(be random)
   define('POST_SALT', "");//see above
   define('API_ARDUINO_KEY', "");//API key to use with actual hat
+  define('ADMIN', '');//admin username for auto-generated admin account
+  define('PASSWORD', '');//admin password for auto-generated admin account
 ?>
