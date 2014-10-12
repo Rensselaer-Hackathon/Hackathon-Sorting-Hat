@@ -206,7 +206,7 @@
       }
       if($valid){
         $username="anonymous";
-        if (array_key_exists("username", $args)){
+        if (array_key_exists("username", $args)&&$args['username']){
           $username= sanitizeString($args['username']);
         }
         $userId=getUserId($db, $username);
