@@ -8,7 +8,6 @@
   or have sensitive info like passwords
 */
   require_once("includes/functions.php");//basic database operations
-  error_log(json_encode($_POST));
   $results = array();//array to be returned to client
 
   if(isset($_GET['action'])){//GETs info ie. list of Videos or list of users

@@ -213,8 +213,6 @@
         error_log($userId);
         $title=sanitizeString($args['title']);
         $description=sanitizeString($args['description']);
-        // Want to try to insert, but not change the Id, and
-        //   change LAST_INSERT_ID() to be the videoId of the inserted video
         try{
           $stmt = $db->prepare(
             'INSERT INTO
@@ -244,6 +242,98 @@
       }
     }else{
       array_push($results['errors'], "invalid args");
+    }
+    return $results;
+  }
+
+  function getIdea($db, $args=-1){
+    $results = array("errors"=>array());
+    $ideaId=$args;
+    $APIKey=0;
+    $type="site";
+    if (is_array($args)){
+      $ideaId=-1;
+      if(array_key_exists("ideaId", $args)){
+        $ideaId = sanitizeString($args['ideaId']);
+      }
+      if(array_key_exists("APIKey", $args)){
+        $APIKey = sanitizeString($args['APIKey'])==API_ARDUINO_KEY;
+      }
+    }
+    if($APIKey){
+      $type = "hat";
+    }
+    try{
+      if($ideaId>=0){
+        $stmt = $db->prepare(
+        'SELECT
+          ideaId,
+          title,
+          description,
+          submittedDate,
+          username
+        FROM
+          Idea i,
+          User u
+        WHERE
+          i.ideaId=:ideaId and
+          i.submitterId=u.userId
+        ;');
+        $stmt->bindValue(':ideaId', $ideaId);
+        $stmt->execute();
+
+        if ($stmt->rowCount()>0){
+          $results['idea']=$stmt->fetch(PDO::FETCH_OBJ);
+          $results['status']="success";
+        }else{
+          $ideaId=-1;
+        }
+      }
+      if($ideaId<0){
+        // /SELECT * FROM `table` WHERE id >= (SELECT FLOOR( MAX(id) * RAND()) FROM `table` ) ORDER BY id LIMIT 1;
+        $stmt = $db->prepare(
+        "SELECT
+          ideaId,
+          title,
+          description,
+          submittedDate,
+          username
+        FROM
+          Idea i,
+          User u
+        WHERE
+          i.{$type}Frequency=(SELECT MIN({$type}Frequency) FROM Idea) and
+          i.submitterId=u.userId
+        ORDER BY
+          RAND()
+        LIMIT
+          1
+        ;");
+        $stmt->execute();
+
+        if ($stmt->rowCount()>0){
+          $idea = $stmt->fetch(PDO::FETCH_OBJ);
+          $asdf = $db->prepare(
+          "UPDATE
+            Idea
+          SET
+            {$type}Frequency={$type}Frequency+1
+          WHERE
+            ideaId=:ideaId
+          ;");
+          $asdf->bindValue(':ideaId', $idea->ideaId);
+
+          $asdf->execute();
+          $results['idea']=$idea;
+          $results['status']="success";
+        }else{
+          $results['status']="failed";
+        }
+      }
+
+    }catch (PDOException $e) {//something went wrong...
+      error_log("Error: " . $e->getMessage());
+      array_push($results['errors'], "database error");
     }
     return $results;
   }
