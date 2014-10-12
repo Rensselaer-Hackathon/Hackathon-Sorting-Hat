@@ -1,9 +1,11 @@
 #include <Keypad.h>
+#include <Adafruit_Thermal.h>
+#include <avr/pgmspace.h>
 #include <SoftwareSerial.h>
 #include "pitches.h"
 
-#define RxD 11
-#define TxD 10
+#define RxD 0
+#define TxD 1
 
 const byte ROWS = 4; // Four rows
 const byte COLS = 3; // Three columns
@@ -35,6 +37,13 @@ int noteDurations[] = {4, 3, 8, 4, 2, 4, 1.5, 1.5,
 // bluetooth stuff
 SoftwareSerial BlueTooth(RxD, TxD); 
 
+// Thermal printer stuff
+int printer_RX_Pin = 10;  // This is the green wire
+int printer_TX_Pin = 11;  // This is the yellow wire
+
+Adafruit_Thermal printer(printer_RX_Pin, printer_TX_Pin);
+
+
 void playHarryPotter() {
   // iterate over the notes of the melody:
   for (int thisNote = 0; thisNote < 26; thisNote++) {
@@ -52,32 +61,35 @@ void playHarryPotter() {
     // stop the tone playing:
     noTone(speakerPin);
   }
+  
 }
 
 void setup() {
-  Serial.begin(9600);
+  //Serial.begin(9600);
 
   BlueTooth.begin(9600); // initialize connection with the Arduino Pro Mini with the Bluetooth dongle 
+  
+  printer.begin(9600);
+  
 }
 
 void loop() {
   char key = kpd.getKey();
   if (key) {
-    
-    String msg = "hello";
-    
-    Serial.println(key);
-    
+
     BlueTooth.print(key);
     
     if (key == '*') {
       playHarryPotter();
+      printer.println("HARRY POTTER!");
+      printer.println();
     }
     
   }
   
   if (BlueTooth.available()) {
-    Serial.write( BlueTooth.read() );
+    //byte c = BlueTooth.read();
+    printer.println("hello");
   }
   
 }

@@ -10,7 +10,17 @@ def makeAPICall(info):
 
   base_url = "http://vmutti.com/api.php?action=getIdea&APIKey="
   api_key = [x.strip() for x in open("api.key")][0]
-  url = base_url + api_key
+  category = ""
+
+
+  if (info == "1"):
+    category = "web"
+  elif (info == "2"):
+    category = "hardware"
+  elif (info == "3"):
+    category == "mobile"
+
+  url = base_url + api_key + category
   # make the call to the api
   response = requests.get(url)
   # check for any bad error codes
@@ -19,11 +29,8 @@ def makeAPICall(info):
     return
 
   data = response.json()
-  for k,v in data["idea"].items():
-    print(k,v)
+  return data["idea"]["description"]
 
-  if (info == "1"):
-    pass
 
 def connectBlueTooth(port):
   try:
@@ -49,15 +56,16 @@ def main(ser):
       # remove the crap
       # line = line.replace("'", "").replace("\\n", "").replace("\\r", "").strip()
       print(line)
-      # makeAPICall(line)
-      sendBlueTooth(ser, "alright alright alright")
+      data = makeAPICall(line)
+      print(data)
+      sendBlueTooth(ser, data)
   else:
     print("serial ended")
 
 # ------------------------------------------------------------------------------
 if (__name__ == "__main__"):
 
-  port = "COM6"
+  port = "COM7"
   ser = connectBlueTooth(port)
 
   if (ser):
