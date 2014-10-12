@@ -63,9 +63,12 @@ void setup() {
 void loop() {
   char key = kpd.getKey();
   if (key) {
+    
+    String msg = "hello";
+    
     Serial.println(key);
     
-    BlueTooth.println("hello");
+    BlueTooth.print(key);
     
     if (key == '*') {
       playHarryPotter();
