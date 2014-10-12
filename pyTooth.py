@@ -1,5 +1,6 @@
 import requests
 import json
+from time import sleep
 
 try:
   import serial
@@ -14,11 +15,15 @@ def makeAPICall(info):
 
 
   if (info == "1"):
-    category = "web"
+    category = "&catName=web"
   elif (info == "2"):
-    category = "hardware"
+    category = "&catName=hardware"
   elif (info == "3"):
-    category == "mobile"
+    category = "&catName=mobile"
+  elif (info == "4"):
+    category = "&catName=desktop"
+  elif (info == "5"):
+    category = "$catName=design"
 
   url = base_url + api_key + category
   # make the call to the api
@@ -29,7 +34,14 @@ def makeAPICall(info):
     return
 
   data = response.json()
-  return data["idea"]["description"]
+  print(data)
+  data_list =  ["App Name: " + data["idea"]["title"], \
+                "Category: " + data["idea"]["categoryName"], \
+                "Description: " + data["idea"]["description"], \
+                "Submitted by: " + data["idea"]["username"], \
+                "Submitted on: " + data["idea"]["submittedDate"], \
+                "AppId: " + data["idea"]["ideaId"]]
+  return data_list
 
 
 def connectBlueTooth(port):
@@ -38,6 +50,7 @@ def connectBlueTooth(port):
   except:
     print("ERROR initializing com port")
     return 0
+  print("com port initialized on:", port)
   return ser
 
 def sendBlueTooth(ser, msg):
@@ -58,14 +71,20 @@ def main(ser):
       print(line)
       data = makeAPICall(line)
       print(data)
-      sendBlueTooth(ser, data)
+      for d in data:
+        sendBlueTooth(ser, d)
+        sleep(2)
+      # feed empty lines because
+      for i in range(3):
+        sendBlueTooth(ser, " ")
+        sleep(1)
   else:
     print("serial ended")
 
 # ------------------------------------------------------------------------------
 if (__name__ == "__main__"):
 
-  port = "COM7"
+  port = "COM5"
   ser = connectBlueTooth(port)
 
   if (ser):

@@ -35,7 +35,7 @@ int noteDurations[] = {4, 3, 8, 4, 2, 4, 1.5, 1.5,
                        4, 8, 4, 3, 4, 2, 4, 2, 4};
                        
 // bluetooth stuff
-SoftwareSerial BlueTooth(RxD, TxD); 
+//SoftwareSerial BlueTooth(RxD, TxD); 
 
 // Thermal printer stuff
 int printer_RX_Pin = 10;  // This is the green wire
@@ -43,6 +43,7 @@ int printer_TX_Pin = 11;  // This is the yellow wire
 
 Adafruit_Thermal printer(printer_RX_Pin, printer_TX_Pin);
 
+String line = "";
 
 void playHarryPotter() {
   // iterate over the notes of the melody:
@@ -65,9 +66,9 @@ void playHarryPotter() {
 }
 
 void setup() {
-  //Serial.begin(9600);
+  Serial.begin(9600);
 
-  BlueTooth.begin(9600); // initialize connection with the Arduino Pro Mini with the Bluetooth dongle 
+  //BlueTooth.begin(9600); // initialize connection with the Arduino Pro Mini with the Bluetooth dongle 
   
   printer.begin(9600);
   
@@ -77,19 +78,38 @@ void loop() {
   char key = kpd.getKey();
   if (key) {
 
-    BlueTooth.print(key);
+    //BlueTooth.print(key);
     
     if (key == '*') {
       playHarryPotter();
       printer.println("HARRY POTTER!");
       printer.println();
     }
+    else {
+      Serial.print(key);
+    }
     
   }
   
-  if (BlueTooth.available()) {
-    //byte c = BlueTooth.read();
-    printer.println("hello");
+  //if (BlueTooth.available()) {
+  if (Serial.available()) {
+    delay(50);
+    while (Serial.available()) {
+      char c = (char)Serial.read();
+      line = line + c;
+    }
+    printer.println(line);
+    line = "";
+    /*
+    char c = (char)Serial.read();
+    if (c == '~') {
+      printer.println(line);
+      line = "";
+    }
+    else {
+      line = line + c;
+    }
+    */
   }
   
 }
