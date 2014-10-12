@@ -312,6 +312,7 @@
     $APIKey=0;
     $type="site";
     $catQuery='';
+    $catId=0;
     if (is_array($args)){
       $ideaId=-1;
       if(array_key_exists("ideaId", $args)){
@@ -320,8 +321,28 @@
       if(array_key_exists("APIKey", $args)){
         $APIKey = sanitizeString($args['APIKey'])==API_ARDUINO_KEY;
       }
+      if(array_key_exists("catName", $args) && $args['catName']){
+        $stmt = $db->prepare(
+          "SELECT
+            catId
+          FROM
+            Category
+          WHERE
+            categoryName=:catName
+        ;");
+        $stmt->bindValue(':catName', $args['catName']);
+        $stmt->execute();
+
+        if ($stmt->rowCount()>0){
+          $catId = $stmt->fetch(PDO::FETCH_OBJ)->catId;
+        }
+      }
       if(array_key_exists("catId", $args) && $args['catId']){
-        $catQuery = " and catId='".sanitizeString($args['catId'])."' ";
+        $catId = sanitizeString($args['catId']);
+      }
+      if($catId){
+        error_log($catId);
+        $catQuery = " and catId='".$catId."' ";
       }
     }
     if($APIKey){
