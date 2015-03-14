@@ -1,6 +1,4 @@
-<<<<<<< HEAD
 *.key
-=======
 includes/constants.php
-api.key
->>>>>>> origin/web
+__pycache__
+ideaDB*
