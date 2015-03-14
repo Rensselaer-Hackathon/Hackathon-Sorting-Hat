@@ -1,1 +1,6 @@
+<<<<<<< HEAD
 *.key
+=======
+includes/constants.php
+api.key
+>>>>>>> origin/web
