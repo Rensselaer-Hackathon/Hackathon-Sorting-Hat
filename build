@@ -1,0 +1,12 @@
+# libraries
+mkdir -p ./public/lib/jquery
+curl -o ./public/lib/jquery/jquery.min.js http://code.jquery.com/jquery-1.12.1.min.js
+
+mkdir -p ./public/lib/velocity
+curl -o ./public/lib/velocity/velocity.min.js https://raw.githubusercontent.com/julianshapiro/velocity/master/velocity.min.js
+
+# fonts
+mkdir -p ./public/fonts
+curl -o ./public/fonts/harry_potter.zip http://dl.dafont.com/dl/?f=harry_p
+unzip ./public/fonts/harry_potter.zip -d ./public/fonts
+rm -rf ./public/fonts/harry_potter.zip ./public/fonts/harryp-readme.txt

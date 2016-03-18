@@ -1,0 +1,84 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans);
+
+@font-face {
+  font-family: HarryPotter;
+  src: url(/fonts/HARRYP__.TTF);
+}
+
+/* Gryffindor color palette */
+@gryff_red:	#740001;
+@gryff_red2: #ae0001;
+@gryff_gold: #eeba30;
+@gryff_gold2: #d3a625;
+/* Hufflepuff color palette */
+@huffl_gold: #eeb527;
+@huffl_gold2:	#eec55d;
+@huffl_grey: #6d6158;
+@huffl_grey2:	#38302c;
+/* Slytherin color palette */
+@slyth_green: #20472e;
+@slyth_green2: #2d5e3e;
+@slyth_grey: 	#565555;
+@slyth_grey2: #a1a1a1;
+/* Ravenclaw color palette */
+@raven_blue: #0e1a40;
+@raven_blue2:	#222f5b;
+@raven_grey: #5d5d5d;
+@raven_gold: #946b2d;
+
+html {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  
+  body {
+    font-family: 'Open Sans', sans-serif;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+h2 {
+  font-family: 'HarryPotter';
+  font-size: 32px;
+}
+
+.container {
+  min-height: 100%;
+  height: 100%;
+  width: 100%;
+}
+
+.content {
+  min-height: 100%;
+  height: 100%;
+  width: 100%;
+  display: -webkit-flex;
+	display: 	   -ms-flex;
+	display: 		     flex;
+  flex-wrap: wrap;
+  
+  .house {
+    flex-basis: 25%;
+  }
+  
+  .house#gryffindor {
+    background-color: @gryff_red;
+  }
+  .house#hufflepuff {
+    background-color: @huffl_gold;
+  }
+  .house#slytherin {
+    background-color: @slyth_green;
+  }
+  .house#ravenclaw {
+    background-color: @raven_blue;
+  }
+  
+}
+
+.footer {
+  padding: 20px 0;
+}
