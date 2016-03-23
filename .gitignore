@@ -1,4 +1,6 @@
-public/style/*.css
-public/lib
-public/fonts
+source/public/style/*.css
+source/public/lib
+source/public/fonts
+node_modules
 *.xcf
+config.json

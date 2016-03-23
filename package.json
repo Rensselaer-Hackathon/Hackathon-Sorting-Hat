@@ -1,0 +1,30 @@
+{
+  "name": "hackathon-sorting-hat",
+  "version": "0.1.0",
+  "description": "The magic, talking hackathon sorting hat.",
+  "main": "server.js",
+  "directories": {
+    "test": "test",
+    "source": "source"
+  },
+  "scripts": {
+    "test": "test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rensselaer-Hackathon/Hackathon-Sorting-Hat.git"
+  },
+  "author": "Matt Poegel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Rensselaer-Hackathon/Hackathon-Sorting-Hat/issues"
+  },
+  "homepage": "https://github.com/Rensselaer-Hackathon/Hackathon-Sorting-Hat#readme",
+  "dependencies": {
+    "express": "^4.13.4",
+    "gulp": "^3.9.1",
+    "gulp-nodemon": "^2.0.6",
+    "less-middleware": "^2.1.0",
+    "websocket": "^1.0.22"
+  }
+}
