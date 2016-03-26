@@ -45,3 +45,23 @@ $('.house').on('click', function(e) {
     'flex-basis': '85%',
   });
 });
+
+$('.button').on('click', function(event) {
+  var target = $(event.target).attr('data-target');
+  $.get('/api/idea/' + target)
+    .done(function(res) {
+      alert('Request received!');
+      $('.house header').css({ 'writing-mode': 'rl' });
+      $('.house header h2').css({ margin: '10px' });
+      $('.house .sigil img').css({
+        width: '200px',
+        height: '200px'
+      });
+      $('.house .button').css({ display: 'none' });
+      $('.house .description').css({ display: 'block' });
+      $('.house').velocity({
+        'flex-basis': '25%'
+      });
+      
+    });
+});

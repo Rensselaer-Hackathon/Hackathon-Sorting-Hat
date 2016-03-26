@@ -12,3 +12,4 @@ config.port = settings.port || 8000;
 config.hat = settings.hat || {};
 
 module.exports = config;
+

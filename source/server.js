@@ -12,6 +12,8 @@ app.use(lessMiddleware(
 
 app.use( express.static(__dirname + '/public') );
 
+app.use( '/api', require('./controllers') );
+
 var server = app.listen(config.port, function() {
   let host = server.address().address,
       port = server.address().port;
