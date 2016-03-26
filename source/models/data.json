@@ -1,46 +1,67 @@
 {
   "web": {
     "1": [
-      "Google Maps"
+      "Twilio", "Sendgrid", "Mailjet", "Facebook", "Twitter", "Reddit",
+      "Instagram", "Imgur", "Flickr", "WolframAlpha", "Delivery.com",
+      "Grubhub" 
     ],
     "2": [
-      "Google Maps"
+      "Venmo", "Paypal", "Stripe", "Yelp", "Google Maps", "Google Places",
+      "Mapbox", "Spotify", "Echo Nest", "Soundcloud", "Google Play", "Rdio",
+      "Youtube", "GroupMe"
     ],
     "3": [
-      "Google Maps"
+      "Multiplayer", "Doge", "Fitness", "Sound effects", "Tacky", "Flamboyent",
+      "Animated", "3D", "Slide-scrolling", "Vikings", "Superhero", "Flowers", 
+      "Weather", "Monkies", "Whales"
     ]
   },
   "desktop": {
     "1": [
-      
+      "Multithreading", "Forks", "Alerts", "Sockets", "OpenGL"
     ],
     "2": [
-      
+      "Electron", "Terminal", "Unity", "Wildcard"
     ],
     "3": [
-      
+      "Multiplayer", "Doge", "Fitness", "Sound effects", "Tacky", "Flamboyent",
+      "Animated", "3D", "Slide-scrolling", "Vikings", "Superhero", "Flowers", 
+      "Weather", "Monkies", "Whales"
     ]
   },
   "mobile": {
     "1": [
-      
+      "Moxtra", "Brightness", "Music", "Git", "Imgur", "Flickr", "Soundcloud",
+      "Yelp", "Instagram", "Twilio", "WolframAlpha", "Youtube", "Rdio"
     ],
     "2": [
-      
+      "Rear Camera", "Front-facing Camera", "GPS", "Accelerometer", "Text", 
+      "Video", "Speakers", "Flash", "Alarm"
     ],
     "3": [
-      
+      "Multiplayer", "Doge", "Fitness", "Sound effects", "Tacky", "Flamboyent",
+      "Animated", "3D", "Slide-scrolling", "Vikings", "Superhero", "Flowers", 
+      "Weather", "Monkies", "Whales"
     ]
   },
   "data_science": {
     "1": [
-      
+      "Agriculture", "Biology", "Climate/Weather", "Complex Networks",
+      "Computer Networks", "Contextual Data", "Data Challenges", "Economics",
+      "Education", "Energy", "Finance", "Geology", "GIS/Environment", 
+      "Government", "Healthcare", "Image Processing", "Machine Learning", 
+      "Museums", "Natural Language", "Physics", "Phychology/Cognition", 
+      "Public Domains", "Search Engines", "Social Networks", "Social Sciences", 
+      "Software", "Sports", "Time Series", "Transportation"
     ],
     "2": [
-      
+      "Regression", "Visualization", "Classification", "Probabilistic Model",
+      "Reinforcement", "Beaker", "IPython"
     ],
     "3": [
-      
+      "Multiplayer", "Doge", "Fitness", "Sound effects", "Tacky", "Flamboyent",
+      "Animated", "3D", "Slide-scrolling", "Vikings", "Superhero", "Flowers", 
+      "Weather", "Monkies", "Whales"
     ]
   }
 }
